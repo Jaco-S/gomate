@@ -27,8 +27,8 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
 
       const map = L.map(containerRef.current!).setView([lat, lng], zoom)
 
-     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO'
 }).addTo(map)
 
       const marker = L.marker([lat, lng]).addTo(map)
