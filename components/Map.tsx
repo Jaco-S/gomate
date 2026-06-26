@@ -1,5 +1,4 @@
 ﻿'use client'
-
 import { useEffect, useRef } from 'react'
 import 'leaflet/dist/leaflet.css'
 
@@ -18,21 +17,20 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
     if (!containerRef.current || mapRef.current) return
 
     import('leaflet').then(L => {
-      delete (L.Icon.Default.prototype as any)._getIconUrl
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      })
-
       const map = L.map(containerRef.current!).setView([lat, lng], zoom)
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO'
-}).addTo(map)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO'
+      }).addTo(map)
 
-      const marker = L.marker([lat, lng]).addTo(map)
-      marker.bindPopup('Repartidor').openPopup()
+      const motoIcon = L.divIcon({
+        html: `<div style="width:40px;height:40px;background:#3730C8;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 12px rgba(55,48,200,0.6);">🛵</div>`,
+        className: '',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+      })
+
+      const marker = L.marker([lat, lng], { icon: motoIcon }).addTo(map)
 
       mapRef.current = map
       markerRef.current = marker
@@ -54,7 +52,6 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
-
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: '16px' }} />
     </div>
   )
