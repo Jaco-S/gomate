@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useRef } from 'react'
+import 'leaflet/dist/leaflet.css'
 
 interface Props {
   lat: number
@@ -53,7 +54,7 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: '16px' }} />
     </div>
   )
