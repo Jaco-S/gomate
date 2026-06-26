@@ -32,6 +32,8 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [position, setPosition] = useState<{ lat: number, lng: number } | null>(null)
+  const [heading, setHeading] = useState(0)
+const prevPosition = useRef<{lat: number, lng: number} | null>(null)
   const watchRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -56,6 +58,13 @@ export default function OrderDetailPage() {
       async (pos) => {
         const { latitude: lat, longitude: lng, accuracy } = pos.coords
         setPosition({ lat, lng })
+if (prevPosition.current) {
+  const dLng = lng - prevPosition.current.lng
+  const dLat = lat - prevPosition.current.lat
+  const angle = Math.atan2(dLng, dLat) * (180 / Math.PI)
+  setHeading(angle)
+}
+prevPosition.current = { lat, lng }
 
         // guardar en Supabase
         await supabase.from('order_tracking').insert({
@@ -142,7 +151,7 @@ export default function OrderDetailPage() {
       {order.status === 'in_transit' && (
         <div style={{ margin: '16px 20px 0', height: '220px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)', position: 'relative' }}>
           {position ? (
-            <Map lat={position.lat} lng={position.lng} />
+            <Map lat={position.lat} lng={position.lng} heading={heading} />
           ) : (
             <div style={{ width: '100%', height: '100%', background: '#171717', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
               <div style={{ fontSize: '24px' }}>📡</div>
