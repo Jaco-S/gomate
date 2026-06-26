@@ -24,10 +24,10 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
       }).addTo(map)
 
       const motoIcon = L.divIcon({
-        html: `<div style="width:40px;height:40px;background:#3730C8;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 12px rgba(55,48,200,0.6);">🛵</div>`,
+        html: `<div style="font-size:32px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));">🛵</div>`,
         className: '',
-        iconSize: [40, 40],
-        iconAnchor: [20, 20]
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
       })
 
       const marker = L.marker([lat, lng], { icon: motoIcon }).addTo(map)
