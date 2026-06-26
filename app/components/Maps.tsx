@@ -31,8 +31,22 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
         attribution: '© OpenStreetMap'
       }).addTo(map)
 
-      const marker = L.marker([lat, lng]).addTo(map)
-      marker.bindPopup('🛵 Repartidor').openPopup()
+      const motoIcon = L.divIcon({
+  html: `<div style="
+    width:36px;height:36px;
+    background:#3730C8;
+    border-radius:50%;
+    border:3px solid #fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    box-shadow:0 2px 8px rgba(55,48,200,0.5);
+  ">🛵</div>`,
+  className: '',
+  iconSize: [36, 36],
+  iconAnchor: [18, 18]
+})
+
+const marker = L.marker([lat, lng], { icon: motoIcon }).addTo(map)
 
       mapRef.current = map
       markerRef.current = marker

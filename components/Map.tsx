@@ -27,7 +27,7 @@ export default function Map({ lat, lng, zoom = 15 }: Props) {
 
       const map = L.map(containerRef.current!).setView([lat, lng], zoom)
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(map)
 
