@@ -142,12 +142,18 @@ export default function LoginPage() {
         </button>
 
         <div style={{ textAlign: 'center', fontSize: '13px', color: '#606060' }}>
-          <div style={{ textAlign: 'center', fontSize: '13px', color: '#606060', marginTop: '8px' }}>
-  ¿Eres un local?{' '}
-  <a href="/auth/register?role=store" style={{ color: '#F59E0B', fontWeight: 600, textDecoration: 'none' }}>
-    Regístrate aquí
-  </a>
-</div>
+          ¿No tienes cuenta?{' '}
+          <a href="/auth/register" style={{ color: '#3730C8', fontWeight: 600, textDecoration: 'none' }}>
+            Regístrate
+          </a>
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: '13px', color: '#606060' }}>
+          ¿Eres un local?{' '}
+          <a href="/auth/register?role=store" style={{ color: '#F59E0B', fontWeight: 600, textDecoration: 'none' }}>
+            Regístrate aquí
+          </a>
+        </div>
           </a>
         </div>
       </form>
