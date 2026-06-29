@@ -28,8 +28,8 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // rutas públicas — no requieren auth
-  const publicRoutes = ['/auth/login', '/auth/register', '/t/']
-  const isPublic = publicRoutes.some(r => request.nextUrl.pathname.startsWith(r))
+  const publicRoutes = ['/auth/login', '/auth/register', '/t/', '/marketplace', '/store', '/checkout', '/']
+const isPublic = publicRoutes.some(r => request.nextUrl.pathname.startsWith(r))
 
   // si no hay sesión y la ruta es privada → login
   if (!user && !isPublic) {
@@ -39,11 +39,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // si hay sesión y va a auth → dashboard
-  if (user && request.nextUrl.pathname.startsWith('/auth')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
+  // si hay sesión y va a auth/login o register → dashboard
+if (user && (request.nextUrl.pathname === '/auth/login' || request.nextUrl.pathname === '/auth/register')) {
+  const url = request.nextUrl.clone()
+  url.pathname = '/dashboard'
+  return NextResponse.redirect(url)
+}
 
   return supabaseResponse
 }
