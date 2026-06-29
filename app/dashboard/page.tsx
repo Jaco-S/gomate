@@ -69,13 +69,22 @@ export default function DashboardPage() {
             Hola, {profile?.name?.split(' ')[0]} 👋
           </div>
         </div>
-        <button onClick={handleLogout} style={{
-          background: '#171717', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: '10px', padding: '8px 12px',
-          fontSize: '12px', color: '#909090', cursor: 'pointer'
-        }}>
-          Salir
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+  <button onClick={() => router.push('/')} style={{
+    background: '#171717', border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '10px', padding: '8px 12px',
+    fontSize: '12px', color: '#909090', cursor: 'pointer'
+  }}>
+    🔄 Roles
+  </button>
+  <button onClick={handleLogout} style={{
+    background: '#171717', border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '10px', padding: '8px 12px',
+    fontSize: '12px', color: '#909090', cursor: 'pointer'
+  }}>
+    Salir
+  </button>
+</div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '16px 20px 4px' }}>

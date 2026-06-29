@@ -158,10 +158,12 @@ export default function RegisterPage() {
         </button>
 
         <div style={{ textAlign: 'center', fontSize: '13px', color: '#606060' }}>
-          ¿Ya tienes cuenta?{' '}
-          <a href="/auth/login" style={{ color: '#3730C8', fontWeight: 600, textDecoration: 'none' }}>
-            Inicia sesión
-          </a>
+          <div style={{ textAlign: 'center', fontSize: '13px', color: '#606060' }}>
+  ¿Ya tienes cuenta?{' '}
+  <a href="/auth/login?role=store" style={{ color: '#F59E0B', fontWeight: 600, textDecoration: 'none' }}>
+    Inicia sesión como local
+  </a>
+</div>
         </div>
       </form>
     </div>
