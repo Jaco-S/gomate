@@ -154,8 +154,6 @@ export default function LoginPage() {
             Regístrate aquí
           </a>
         </div>
-          </a>
-        </div>
       </form>
     </div>
   )
