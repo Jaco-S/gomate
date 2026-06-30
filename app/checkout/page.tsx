@@ -65,7 +65,6 @@ export default function CheckoutPage() {
       .from('orders')
       .insert({
         delivery_id: delivery.id,
-        customer_id: delivery.id, // placeholder
         customer_v2_id: customer.id,
         store_id: cart.store_id,
         subtotal,
