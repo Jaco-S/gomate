@@ -12,13 +12,32 @@ export function useOrders() {
     const supabase = createClient()
 
     async function load() {
-      const { data } = await supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('delivery_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!profile) return
+
+      const { data: myOrders } = await supabase
         .from('orders')
-        .select('*, customer:customers(*)')
+        .select('*, customer:customers(*), customer_v2:customers_v2(*)')
+        .eq('delivery_id', profile.id)
         .not('status', 'in', '("delivered","cancelled")')
         .order('created_at', { ascending: false })
 
-      setOrders(data || [])
+      const { data: poolOrders } = await supabase
+        .from('orders')
+        .select('*, customer:customers(*), customer_v2:customers_v2(*)')
+        .is('delivery_id', null)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+
+      setOrders([...(poolOrders || []), ...(myOrders || [])])
       setLoading(false)
     }
 

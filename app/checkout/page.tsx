@@ -50,31 +50,20 @@ export default function CheckoutPage() {
 
     if (custErr) { setLoading(false); alert('Error al crear cliente'); return }
 
-    // 2. obtener primer repartidor disponible
-    const { data: delivery } = await supabase
-      .from('delivery_profiles')
-      .select('id')
-      .eq('is_available', true)
-      .limit(1)
-      .single()
-
-    if (!delivery) { setLoading(false); alert('No hay repartidores disponibles ahora'); return }
-
-    // 3. crear order
-    const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert({
-        delivery_id: delivery.id,
-        customer_v2_id: customer.id,
-        store_id: cart.store_id,
-        subtotal,
-        delivery_fee: deliveryFee,
-        total,
-        price: total,
-        payment_method_v2: form.payment_method,
-        notes: form.notes,
-        status: 'pending'
-      })
+   // 3. crear order sin repartidor asignado
+const { data: order, error: orderErr } = await supabase
+  .from('orders')
+  .insert({
+    customer_v2_id: customer.id,
+    store_id: cart.store_id,
+    subtotal,
+    delivery_fee: deliveryFee,
+    total,
+    price: total,
+    payment_method_v2: form.payment_method,
+    notes: form.notes,
+    status: 'pending'
+  })
       .select()
       .single()
 
