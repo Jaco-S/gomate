@@ -90,19 +90,23 @@ prevPosition.current = { lat, lng }
     }
   }, [order?.status])
 
-  async function advanceStatus() {
-    if (!order) return
-    setUpdating(true)
-    if (order.status === 'in_transit') {
-      const { data } = await supabase.rpc('deliver_order', { p_order_id: order.id })
-      setOrder(data)
-      if (watchRef.current) navigator.geolocation.clearWatch(watchRef.current)
-    } else {
-      const { data } = await supabase.rpc('advance_order_status', { p_order_id: order.id })
-      setOrder(data)
-    }
-    setUpdating(false)
+async function advanceStatus() {
+  if (!order) return
+  setUpdating(true)
+  if (order.status === 'in_transit') {
+    const { data } = await supabase.rpc('deliver_order', { p_order_id: order.id })
+    setOrder(data)
+    if (watchRef.current) navigator.geolocation.clearWatch(watchRef.current)
+  } else if (order.status === 'pending' && !order.delivery_id) {
+    const { data, error } = await supabase.rpc('accept_order', { p_order_id: order.id })
+    if (error) { alert('Error: ' + error.message); setUpdating(false); return }
+    setOrder(data)
+  } else {
+    const { data } = await supabase.rpc('advance_order_status', { p_order_id: order.id })
+    setOrder(data)
   }
+  setUpdating(false)
+}
 
   async function cancelOrder() {
     if (!order) return
