@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 import { useEffect, useRef } from 'react'
 import 'leaflet/dist/leaflet.css'
 
@@ -16,7 +16,7 @@ export default function Map({ lat, lng, zoom = 15, heading = 0 }: Props) {
 
   function createIcon(L: any) {
     return L.divIcon({
-      html: '<div style="position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:13px solid #3730C8;"></div><div style="width:36px;height:36px;background:#fff;border-radius:50%;border:3px solid #3730C8;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 10px rgba(55,48,200,0.4);">??</div></div>',
+      html: '<div style="position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:13px solid #3730C8;"></div><div style="width:36px;height:36px;background:#fff;border-radius:50%;border:3px solid #3730C8;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 10px rgba(55,48,200,0.4);">&#128689;</div></div>',
       className: '',
       iconSize: [48, 48],
       iconAnchor: [24, 24]
@@ -30,7 +30,7 @@ export default function Map({ lat, lng, zoom = 15, heading = 0 }: Props) {
       const map = L.map(containerRef.current!).setView([lat, lng], zoom)
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO'
+        attribution: 'Â© OpenStreetMap Â© CARTO'
       }).addTo(map)
 
       const marker = L.marker([lat, lng], { icon: createIcon(L) }).addTo(map)
