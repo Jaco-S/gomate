@@ -23,7 +23,7 @@ export default function Home() {
           Go<span style={{ color: '#3730C8' }}>Mate</span>
         </div>
         <div style={{ fontSize: '14px', color: '#606060', marginTop: '8px' }}>
-          Entregas en tiempo real · Guayaquil
+          Entregas en tiempo real · Ecuador
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export default function Home() {
       </div>
 
       <div style={{ marginTop: '32px', fontSize: '11px', color: '#404040', textAlign: 'center' }}>
-        GoMate · Guayaquil · $0/mes
+        Movento · Ecuador · $0/mes
       </div>
     </div>
   )

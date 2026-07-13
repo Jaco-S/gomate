@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   })
 
   useEffect(() => {
-    const cartData = localStorage.getItem('gomate_cart')
+    const cartData = localStorage.getItem('Movento_cart')
     if (!cartData) { router.push('/marketplace'); return }
     const parsed = JSON.parse(cartData)
     setCart(parsed)
@@ -89,7 +89,7 @@ const { data: order, error: orderErr } = await supabase
     })
 
     // 6. limpiar carrito
-    localStorage.removeItem('gomate_cart')
+    localStorage.removeItem('Movento_cart')
 
     // 7. ir al tracking
     router.push(`/t/${order.tracking_token}`)
@@ -205,7 +205,7 @@ const { data: order, error: orderErr } = await supabase
                 Banco: Banco Pichincha<br />
                 Cuenta: 1234567890<br />
                 Tipo: Corriente<br />
-                Nombre: GoMate Delivery
+                Nombre: Movento Delivery
               </div>
             </div>
           )}

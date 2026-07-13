@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 
 export const metadata: Metadata = {
-  title: 'GoMate',
-  description: 'Entregas en tiempo real',
+  title: 'Movento',
+description: 'Entregas en tiempo real · Ecuador',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'GoMate',
+    title: 'Movento',
   },
 }
 

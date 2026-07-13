@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -91,7 +91,7 @@ export default function LoginPage() {
         </div>
 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
   <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }}/>
-  <span style={{ fontSize: '12px', color: '#505050' }}>o continúa con</span>
+  <span style={{ fontSize: '12px', color: '#505050' }}>o contin�a con</span>
   <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }}/>
 </div>
 

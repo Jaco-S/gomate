@@ -54,7 +54,7 @@ export default function MarketplacePage() {
           <div style={{ fontSize: '22px', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-0.5px' }}>
             Go<span style={{ color: '#3730C8' }}>Mate</span>
           </div>
-          <div style={{ fontSize: '12px', color: '#606060' }}>📍 Guayaquil</div>
+          <div style={{ fontSize: '12px', color: '#606060' }}>📍 Ecuador</div>
         </div>
 
         {/* Search */}

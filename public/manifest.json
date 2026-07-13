@@ -1,6 +1,6 @@
 {
-  "name": "GoMate",
-  "short_name": "GoMate",
+  "name": "Movento",
+  "short_name": "Movento",
   "description": "Entregas en tiempo real",
   "start_url": "/dashboard",
   "display": "standalone",
