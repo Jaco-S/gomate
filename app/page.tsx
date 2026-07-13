@@ -20,7 +20,7 @@ export default function Home() {
     }}>
       <div style={{ marginBottom: '48px', textAlign: 'center' }}>
         <div style={{ fontSize: '36px', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-1px' }}>
-          Go<span style={{ color: '#3730C8' }}>Mate</span>
+         <span style={{ color: '#3730C8' }}>Movento</span>
         </div>
         <div style={{ fontSize: '14px', color: '#606060', marginTop: '8px' }}>
           Entregas en tiempo real · Ecuador

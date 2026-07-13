@@ -98,7 +98,7 @@ export default function PublicTrackingPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ fontSize: '20px', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-0.5px' }}>
-          Go<span style={{ color: '#3730C8' }}>Mate</span>
+          <span style={{ color: '#3730C8' }}>Movento</span>
         </div>
         <div style={{ fontSize: '12px', color: '#505050' }}>Seguimiento en vivo</div>
       </div>
