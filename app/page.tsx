@@ -23,7 +23,7 @@ export default function Home() {
          <span style={{ color: '#3730C8' }}>Movento</span>
         </div>
         <div style={{ fontSize: '14px', color: '#606060', marginTop: '8px' }}>
-          Entregas en tiempo real · Ecuador
+          Entregas en tiempo real · Machala
         </div>
       </div>
 
