@@ -8,12 +8,12 @@ import dynamic from 'next/dynamic'
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 
 const STATUS_INFO: Record<string, { label: string, sub: string, color: string, icon: string }> = {
-  pending:    { label: 'Esperando repartidor', sub: 'Tu pedido está siendo procesado', color: '#909090', icon: '⏳' },
-  accepted:   { label: 'Pedido aceptado', sub: 'El repartidor va a buscar tu paquete', color: '#3730C8', icon: '✅' },
-  pickup:     { label: 'Recogiendo paquete', sub: 'El repartidor tiene tu pedido', color: '#7C3AED', icon: '📦' },
-  in_transit: { label: 'Tu pedido está en camino', sub: 'El repartidor se dirige a tu ubicación', color: '#F59E0B', icon: '🛵' },
-  delivered:  { label: '¡Pedido entregado!', sub: 'Tu pedido fue entregado exitosamente', color: '#16A34A', icon: '✅' },
-  cancelled:  { label: 'Pedido cancelado', sub: 'Este pedido fue cancelado', color: '#DC2626', icon: '❌' },
+  pending:    { label: 'Esperando repartidor', sub: 'Tu pedido esta siendo procesado', color: '#888', icon: '⏳' },
+  accepted:   { label: 'Pedido aceptado', sub: 'El repartidor va a buscar tu paquete', color: '#FF4B2B', icon: '✅' },
+  pickup:     { label: 'Recogiendo paquete', sub: 'El repartidor tiene tu pedido', color: '#D97706', icon: '📦' },
+  in_transit: { label: 'Tu pedido esta en camino', sub: 'El repartidor se dirige a tu ubicacion', color: '#FF4B2B', icon: '🛵' },
+  delivered:  { label: 'Pedido entregado!', sub: 'Tu pedido fue entregado exitosamente', color: '#22C55E', icon: '✅' },
+  cancelled:  { label: 'Pedido cancelado', sub: 'Este pedido fue cancelado', color: '#EF4444', icon: '❌' },
 }
 
 export default function PublicTrackingPage() {
@@ -28,7 +28,7 @@ export default function PublicTrackingPage() {
     async function load() {
       const { data } = await supabase
         .from('orders')
-        .select('*, customer:customers(*)')
+        .select('*, customer:customers(*), customer_v2:customers_v2(*)')
         .eq('tracking_token', token)
         .single()
 
@@ -36,7 +36,6 @@ export default function PublicTrackingPage() {
       setLoading(false)
 
       if (data?.status === 'in_transit') {
-        // obtener última posición
         const { data: tracking } = await supabase
           .from('order_tracking')
           .select('*')
@@ -50,7 +49,6 @@ export default function PublicTrackingPage() {
           setLastUpdate(new Date(tracking.recorded_at).toLocaleTimeString())
         }
 
-        // suscribir al canal realtime
         supabase.channel(`tracking:${data.id}`)
           .on('broadcast', { event: 'location' }, ({ payload }) => {
             setPosition({ lat: payload.lat, lng: payload.lng })
@@ -58,32 +56,25 @@ export default function PublicTrackingPage() {
           })
           .subscribe()
 
-        // también escuchar cambios en la tabla orders
         supabase.channel(`order:${data.id}`)
-          .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'orders',
-            filter: `id=eq.${data.id}`
-          }, ({ new: updated }) => {
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${data.id}` }, ({ new: updated }) => {
             setOrder((prev: any) => ({ ...prev, ...updated }))
           })
           .subscribe()
       }
     }
-
     load()
   }, [token])
 
   if (loading) return (
-    <div style={{ minHeight: '100dvh', background: '#0D0D0D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
-      <div style={{ color: '#606060' }}>Cargando...</div>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
+      <div style={{ color: '#bbb' }}>Cargando...</div>
     </div>
   )
 
   if (!order) return (
-    <div style={{ minHeight: '100dvh', background: '#0D0D0D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
-      <div style={{ textAlign: 'center', color: '#606060' }}>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
+      <div style={{ textAlign: 'center', color: '#bbb' }}>
         <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔍</div>
         <div>Pedido no encontrado</div>
       </div>
@@ -91,81 +82,87 @@ export default function PublicTrackingPage() {
   )
 
   const info = STATUS_INFO[order.status] || STATUS_INFO.pending
+  const clientName = order.customer_v2?.name || order.customer?.name || 'Cliente'
+  const clientAddress = order.customer_v2?.address || order.customer?.address || ''
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#0D0D0D', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: 'system-ui, sans-serif' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ fontSize: '20px', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-0.5px' }}>
-          <span style={{ color: '#3730C8' }}>Movento</span>
+      <div style={{ background: '#FF4B2B', padding: '52px 20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: '24px', fontWeight: 800, color: '#fff', letterSpacing: '-1px' }}>
+            M<span style={{ opacity: .7, fontWeight: 400 }}>ovento</span>
+          </div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '20px' }}>
+            Seguimiento en vivo
+          </div>
         </div>
-        <div style={{ fontSize: '12px', color: '#505050' }}>Seguimiento en vivo</div>
       </div>
 
       {/* Status banner */}
-      <div style={{ margin: '16px 20px', background: `${info.color}15`, border: `1px solid ${info.color}40`, borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <div style={{ width: '46px', height: '46px', borderRadius: '13px', background: info.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
+      <div style={{ margin: '16px 20px 0', background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: `${info.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', flexShrink: 0, border: `1.5px solid ${info.color}30` }}>
           {info.icon}
         </div>
-        <div>
-          <div style={{ fontSize: '15px', fontWeight: 700, color: '#F0F0F0' }}>{info.label}</div>
-          <div style={{ fontSize: '12px', color: info.color, marginTop: '3px' }}>{info.sub}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '15px', fontWeight: 700, color: '#111' }}>{info.label}</div>
+          <div style={{ fontSize: '12px', color: info.color, marginTop: '3px', fontWeight: 500 }}>{info.sub}</div>
         </div>
         {order.status === 'in_transit' && (
-          <div style={{ marginLeft: 'auto', width: '9px', height: '9px', borderRadius: '50%', background: '#F59E0B', animation: 'pulse 1.4s infinite', flexShrink: 0 }}/>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF4B2B', animation: 'pulse 1.4s infinite', flexShrink: 0 }}/>
         )}
       </div>
 
       {/* Mapa */}
       {order.status === 'in_transit' && (
-        <div style={{ margin: '0 20px', height: '220px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)', position: 'relative' }}>
+        <div style={{ margin: '12px 20px', height: '220px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.06)', position: 'relative' }}>
           {position ? (
             <Map lat={position.lat} lng={position.lng} />
           ) : (
-            <div style={{ width: '100%', height: '100%', background: '#171717', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ width: '100%', height: '100%', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
               <div style={{ fontSize: '24px' }}>📡</div>
-              <div style={{ fontSize: '13px', color: '#606060' }}>Esperando ubicación...</div>
+              <div style={{ fontSize: '13px', color: '#bbb' }}>Esperando ubicacion...</div>
             </div>
           )}
-          <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#F59E0B', color: '#000', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '20px', zIndex: 1000 }}>
+          <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#FF4B2B', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '20px', zIndex: 1000 }}>
             LIVE
           </div>
         </div>
       )}
 
-      {/* Info grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '16px 20px 0' }}>
+      {/* Info */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '0 20px', marginTop: order.status !== 'in_transit' ? '12px' : '0' }}>
         {lastUpdate && (
-          <div style={{ background: '#171717', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '12px 14px' }}>
-            <div style={{ fontSize: '11px', color: '#505050', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Actualizado</div>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#F0F0F0' }}>{lastUpdate}</div>
+          <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '14px', padding: '12px 14px' }}>
+            <div style={{ fontSize: '11px', color: '#bbb', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Actualizado</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: '#111' }}>{lastUpdate}</div>
           </div>
         )}
-        <div style={{ background: '#171717', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '11px', color: '#505050', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Dirección</div>
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#F0F0F0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.customer?.address}</div>
+        <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '14px', padding: '12px 14px' }}>
+          <div style={{ fontSize: '11px', color: '#bbb', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Cliente</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{clientName}</div>
         </div>
       </div>
 
-      {/* Pago */}
-      <div style={{ margin: '12px 20px', background: 'rgba(55,48,200,0.12)', border: '1px solid rgba(55,48,200,0.35)', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: '13px', color: '#3730C8', fontWeight: 600 }}>💵 Total a pagar en efectivo</div>
-        <div style={{ fontSize: '22px', fontWeight: 700, color: '#3730C8' }}>${order.price?.toFixed(2)}</div>
-      </div>
-
-      {/* Entregado — foto */}
-      {order.status === 'delivered' && order.photo_url && (
-        <div style={{ margin: '0 20px 16px', background: '#171717', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '16px' }}>
-          <div style={{ fontSize: '12px', color: '#606060', marginBottom: '10px', fontWeight: 600 }}>FOTO DE ENTREGA</div>
-          <img src={order.photo_url} alt="Foto de entrega" style={{ width: '100%', borderRadius: '10px', objectFit: 'cover' }} />
+      {/* Direccion */}
+      {clientAddress && (
+        <div style={{ margin: '10px 20px', background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '14px', padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <span style={{ fontSize: '18px' }}>📍</span>
+          <div style={{ fontSize: '13px', color: '#666', fontWeight: 500 }}>{clientAddress}</div>
         </div>
       )}
 
-      {order.status === 'delivered' && order.delivery_note && (
-        <div style={{ margin: '0 20px 16px', background: '#171717', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '14px 16px', display: 'flex', gap: '10px' }}>
-          <span>📝</span>
-          <div style={{ fontSize: '13px', color: '#909090', lineHeight: 1.5 }}>{order.delivery_note}</div>
+      {/* Pago */}
+      <div style={{ margin: '10px 20px', background: '#FFF1EF', border: '1.5px solid #FFCDC6', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: '13px', color: '#FF4B2B', fontWeight: 600 }}>💵 Total a pagar en efectivo</div>
+        <div style={{ fontSize: '22px', fontWeight: 800, color: '#FF4B2B' }}>${order.price?.toFixed(2) || order.total?.toFixed(2) || '0.00'}</div>
+      </div>
+
+      {order.status === 'delivered' && order.photo_url && (
+        <div style={{ margin: '10px 20px', background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '16px' }}>
+          <div style={{ fontSize: '12px', color: '#bbb', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' }}>Foto de entrega</div>
+          <img src={order.photo_url} alt="Foto de entrega" style={{ width: '100%', borderRadius: '10px', objectFit: 'cover' }} />
         </div>
       )}
 
