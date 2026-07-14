@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-
-export default function RegisterPage() {
+import { Suspense } from 'react'0
+import { Suspense } from 'react'
   const router = useRouter()
   const searchParams = useSearchParams()
   const isStore = searchParams.get('role') === 'store'
@@ -189,5 +189,12 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  )
+}
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: '#bbb' }}>Cargando...</div></div>}>
+      <RegisterForm />
+    </Suspense>
   )
 }
