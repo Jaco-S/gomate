@@ -244,3 +244,16 @@ export default function OrderDetailPage() {
       )}
 
       {order.status === 'cancelled' && (
+        <div style={{ margin: '16px 20px 0', background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '40px', marginBottom: '8px' }}>❌</div>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: '#EF4444' }}>Pedido cancelado</div>
+          <button onClick={() => router.push('/dashboard')} style={{ marginTop: '16px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 24px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'system-ui' }}>
+            Volver al inicio
+          </button>
+        </div>
+      )}
+
+      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}`}</style>
+    </div>
+  )
+}
