@@ -32,7 +32,7 @@ export default function CallbackPage() {
 
       if (store) { router.push('/store-admin'); return }
 
-      // nuevo usuario — ir al selector de rol
+      // nuevo usuario sin perfil — ir al selector de rol
       router.push('/')
     }
 
@@ -40,8 +40,11 @@ export default function CallbackPage() {
   }, [])
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#0D0D0D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
-      <div style={{ color: '#606060', fontSize: '14px' }}>Iniciando sesión...</div>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '32px', marginBottom: '12px' }}>M<span style={{ opacity: .5 }}>ovento</span></div>
+        <div style={{ color: '#bbb', fontSize: '14px' }}>Iniciando sesion...</div>
+      </div>
     </div>
   )
 }
