@@ -40,11 +40,7 @@ const isPublic = publicRoutes.some(r => request.nextUrl.pathname.startsWith(r))
 
   // si hay sesión y va a auth → dashboard
   // si hay sesión y va a auth/login o register → dashboard
-if (user && (request.nextUrl.pathname === '/auth/login' || request.nextUrl.pathname === '/auth/register')) {
-  const url = request.nextUrl.clone()
-  url.pathname = '/dashboard'
-  return NextResponse.redirect(url)
-}
+
 
   return supabaseResponse
 }
