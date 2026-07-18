@@ -32,8 +32,11 @@ export default function CallbackPage() {
 
       if (store) { router.push('/store-admin'); return }
 
-      // nuevo usuario sin perfil — ir al selector de rol
-      router.push('/')
+      const savedRole = localStorage.getItem('movento_role')
+localStorage.removeItem('movento_role')
+if (savedRole === 'store') { router.push('/store-admin/register'); return }
+if (savedRole === 'delivery') { router.push('/register-delivery'); return }
+router.push('/')
     }
 
     handleCallback()
