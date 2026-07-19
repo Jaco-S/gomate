@@ -1,12 +1,12 @@
 'use client'
-import { useRef, useCallback, useState as useStateAlert } from 'react'
+
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useProfile } from '@/hooks/useProfile'
 import { useOrders } from '@/hooks/useOrders'
 import { Order } from '@/types'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
-import { useRef, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 const STATUS_LABEL: Record<string, string> = {
   pending: '⏳ Pendiente', accepted: '✅ Aceptado',
