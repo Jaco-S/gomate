@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Order } from '@/types'
 
-export function useOrders() {
+export function useOrders(onNewOrder?: () => void) {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const prevCountRef = { current: -1 }
 
   useEffect(() => {
     const supabase = createClient()
@@ -37,7 +38,15 @@ export function useOrders() {
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
 
-      setOrders([...(poolOrders || []), ...(myOrders || [])])
+      const all = [...(poolOrders || []), ...(myOrders || [])]
+
+      // detectar pedido nuevo
+      if (prevCountRef.current !== -1 && all.length > prevCountRef.current) {
+        onNewOrder?.()
+      }
+      prevCountRef.current = all.length
+
+      setOrders(all)
       setLoading(false)
     }
 
@@ -46,9 +55,7 @@ export function useOrders() {
     const channel = supabase
       .channel('orders-changes')
       .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'orders'
+        event: '*', schema: 'public', table: 'orders'
       }, () => load())
       .subscribe()
 

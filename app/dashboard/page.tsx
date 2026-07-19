@@ -1,11 +1,12 @@
 'use client'
-
+import { useRef, useCallback, useState as useStateAlert } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useProfile } from '@/hooks/useProfile'
 import { useOrders } from '@/hooks/useOrders'
 import { Order } from '@/types'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { useRef, useCallback } from 'react'
 
 const STATUS_LABEL: Record<string, string> = {
   pending: '⏳ Pendiente', accepted: '✅ Aceptado',
@@ -21,7 +22,28 @@ const STATUS_COLOR: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter()
   const { profile, loading: profileLoading } = useProfile()
-  const { orders, loading: ordersLoading } = useOrders()
+  const [newOrderAlert, setNewOrderAlert] = useState(false)
+const audioRef = useRef<HTMLAudioElement | null>(null)
+
+const handleNewOrder = useCallback(() => {
+  setNewOrderAlert(true)
+  // sonido de alerta
+  try {
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.frequency.value = 880
+    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.5)
+  } catch(e) {}
+  setTimeout(() => setNewOrderAlert(false), 5000)
+}, [])
+
+const { orders, loading: ordersLoading } = useOrders(handleNewOrder)
   const supabase = createClient()
 const { permission, requestPermission } = usePushNotifications()
   async function handleLogout() {
@@ -41,7 +63,22 @@ const { permission, requestPermission } = usePushNotifications()
 
   return (
     <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: 'system-ui, sans-serif', paddingBottom: '80px' }}>
-
+{newOrderAlert && (
+  <div style={{
+    position: 'fixed', top: '20px', left: '20px', right: '20px',
+    background: '#FF4B2B', color: '#fff',
+    borderRadius: '16px', padding: '16px 20px',
+    display: 'flex', alignItems: 'center', gap: '12px',
+    zIndex: 200, boxShadow: '0 8px 32px rgba(255,75,43,0.5)',
+    animation: 'slideDown 0.3s ease'
+  }}>
+    <div style={{ fontSize: '24px' }}>📦</div>
+    <div>
+      <div style={{ fontWeight: 700, fontSize: '15px' }}>Nuevo pedido recibido</div>
+      <div style={{ fontSize: '12px', opacity: .85, marginTop: '2px' }}>Toca para ver el pedido</div>
+    </div>
+  </div>
+)}
       {/* Header */}
       <div style={{ background: '#FF4B2B', padding: '52px 20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -157,8 +194,9 @@ const { permission, requestPermission } = usePushNotifications()
       </div>
 
       <style>{`
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
-      `}</style>
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+  @keyframes slideDown { from{transform:translateY(-100%);opacity:0} to{transform:translateY(0);opacity:1} }
+`}</style>
     </div>
   )
 }
