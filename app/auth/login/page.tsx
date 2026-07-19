@@ -31,14 +31,11 @@ export default function LoginPage() {
       .eq('user_id', data.user?.id)
       .single()
 
-    if (profile) {
-      router.push('/dashboard')
-    } else {
-      router.push('/store-admin')
-    }
-    router.refresh()
-  }
-
+   if (profile) {
+  window.location.href = '/dashboard'
+} else {
+  window.location.href = '/store-admin'
+}
   const inputStyle = {
     width: '100%',
     background: '#F7F7F7',
