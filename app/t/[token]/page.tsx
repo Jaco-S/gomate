@@ -24,47 +24,55 @@ export default function PublicTrackingPage() {
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from('orders')
-        .select('*, customer:customers(*), customer_v2:customers_v2(*)')
-        .eq('tracking_token', token)
+ useEffect(() => {
+  async function load() {
+    const { data } = await supabase
+      .from('orders')
+      .select('*, customer:customers(*), customer_v2:customers_v2(*)')
+      .eq('tracking_token', token)
+      .single()
+
+    setOrder(data)
+    setLoading(false)
+
+    if (!data) return
+
+    // escuchar cambios de estado SIEMPRE
+    supabase.channel(`order-status:${data.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'orders',
+        filter: `id=eq.${data.id}`
+      }, ({ new: updated }) => {
+        setOrder((prev: any) => ({ ...prev, ...updated }))
+      })
+      .subscribe()
+
+    if (data?.status === 'in_transit') {
+      const { data: tracking } = await supabase
+        .from('order_tracking')
+        .select('*')
+        .eq('order_id', data.id)
+        .order('recorded_at', { ascending: false })
+        .limit(1)
         .single()
 
-      setOrder(data)
-      setLoading(false)
-
-      if (data?.status === 'in_transit') {
-        const { data: tracking } = await supabase
-          .from('order_tracking')
-          .select('*')
-          .eq('order_id', data.id)
-          .order('recorded_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        if (tracking) {
-          setPosition({ lat: tracking.latitude, lng: tracking.longitude })
-          setLastUpdate(new Date(tracking.recorded_at).toLocaleTimeString())
-        }
-
-        supabase.channel(`tracking:${data.id}`)
-          .on('broadcast', { event: 'location' }, ({ payload }) => {
-            setPosition({ lat: payload.lat, lng: payload.lng })
-            setLastUpdate(new Date().toLocaleTimeString())
-          })
-          .subscribe()
-
-        supabase.channel(`order:${data.id}`)
-          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${data.id}` }, ({ new: updated }) => {
-            setOrder((prev: any) => ({ ...prev, ...updated }))
-          })
-          .subscribe()
+      if (tracking) {
+        setPosition({ lat: tracking.latitude, lng: tracking.longitude })
+        setLastUpdate(new Date(tracking.recorded_at).toLocaleTimeString())
       }
+
+      supabase.channel(`tracking:${data.id}`)
+        .on('broadcast', { event: 'location' }, ({ payload }) => {
+          setPosition({ lat: payload.lat, lng: payload.lng })
+          setLastUpdate(new Date().toLocaleTimeString())
+        })
+        .subscribe()
     }
-    load()
-  }, [token])
+  }
+  load()
+}, [token])
 
   if (loading) return (
     <div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
