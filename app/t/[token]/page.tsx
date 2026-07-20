@@ -74,6 +74,21 @@ export default function PublicTrackingPage() {
   load()
 }, [token])
 
+useEffect(() => {
+  if (!order || order.status !== 'in_transit') return
+
+  const supabase = createClient()
+
+  const trackingChannel = supabase.channel(`tracking:${order.id}`)
+    .on('broadcast', { event: 'location' }, ({ payload }) => {
+      setPosition({ lat: payload.lat, lng: payload.lng })
+      setLastUpdate(new Date().toLocaleTimeString())
+    })
+    .subscribe()
+
+  return () => { supabase.removeChannel(trackingChannel) }
+}, [order?.status])
+
   if (loading) return (
     <div style={{ minHeight: '100dvh', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
       <div style={{ color: '#bbb' }}>Cargando...</div>
