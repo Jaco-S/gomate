@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useProfile } from '@/hooks/useProfile'
 import { useOrders } from '@/hooks/useOrders'
 import { Order } from '@/types'
-import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useState, useRef, useCallback } from 'react'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -45,7 +44,7 @@ const handleNewOrder = useCallback(() => {
 
 const { orders, loading: ordersLoading } = useOrders(handleNewOrder)
   const supabase = createClient()
-const { permission, requestPermission } = usePushNotifications()
+
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/auth/login')
@@ -94,15 +93,7 @@ const { permission, requestPermission } = usePushNotifications()
             <button onClick={() => router.push('/')} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '12px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
               🔄 Roles
             </button>
-{permission !== 'granted' && (
-  <button onClick={requestPermission} style={{
-    background: 'rgba(255,255,255,0.2)', border: 'none',
-    borderRadius: '10px', padding: '8px 12px',
-    fontSize: '12px', color: '#fff', cursor: 'pointer', fontWeight: 600
-  }}>
-    🔔 Activar alertas
-  </button>
-)}
+
             <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '12px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
               Salir
             </button>
