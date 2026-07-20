@@ -42,8 +42,29 @@ export function useOrders(onNewOrder?: () => void) {
 
       // detectar pedido nuevo
       if (prevCountRef.current !== -1 && all.length > prevCountRef.current) {
-        onNewOrder?.()
-      }
+  onNewOrder?.()
+  if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (Notification.permission === 'granted') {
+      new Notification('Movento — Nuevo pedido', {
+        body: 'Tienes un nuevo pedido esperando',
+        icon: '/icon-192.png',
+        tag: 'new-order',
+        requireInteraction: true
+      })
+    } else if (Notification.permission === 'default') {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+          new Notification('Movento — Nuevo pedido', {
+            body: 'Tienes un nuevo pedido esperando',
+            icon: '/icon-192.png',
+            tag: 'new-order',
+            requireInteraction: true
+          })
+        }
+      })
+    }
+  }
+}
       prevCountRef.current = all.length
 
       setOrders(all)
