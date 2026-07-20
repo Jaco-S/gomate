@@ -158,7 +158,19 @@ export default function PublicTrackingPage() {
         <div style={{ fontSize: '13px', color: '#FF4B2B', fontWeight: 600 }}>💵 Total a pagar en efectivo</div>
         <div style={{ fontSize: '22px', fontWeight: 800, color: '#FF4B2B' }}>${order.price?.toFixed(2) || order.total?.toFixed(2) || '0.00'}</div>
       </div>
-
+{order.status === 'delivered' && (
+  <div style={{ padding: '0 20px 16px' }}>
+    <button onClick={() => window.location.href = '/'} style={{
+      width: '100%', height: '52px',
+      background: '#FF4B2B', color: '#fff',
+      fontSize: '15px', fontWeight: 700,
+      border: 'none', borderRadius: '14px',
+      cursor: 'pointer', fontFamily: 'system-ui'
+    }}>
+      Hacer otro pedido
+    </button>
+  </div>
+)}
       {order.status === 'delivered' && order.photo_url && (
         <div style={{ margin: '10px 20px', background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '16px' }}>
           <div style={{ fontSize: '12px', color: '#bbb', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' }}>Foto de entrega</div>
