@@ -13,6 +13,8 @@ export default function StoreProductsPage() {
   const [loading, setLoading] = useState(true)
   const [showNewProduct, setShowNewProduct] = useState(false)
   const [showNewCategory, setShowNewCategory] = useState(false)
+const [imageFile, setImageFile] = useState<File | null>(null)
+const [uploading, setUploading] = useState(false)
   const [newCategory, setNewCategory] = useState('')
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', category_id: ''
@@ -55,24 +57,42 @@ export default function StoreProductsPage() {
     setShowNewCategory(false)
   }
 
-  async function addProduct() {
-    if (!newProduct.name || !newProduct.price) return
-    const { data } = await supabase
-      .from('products')
-      .insert({
-        store_id: store.id,
-        category_id: newProduct.category_id || null,
-        name: newProduct.name,
-        description: newProduct.description,
-        price: parseFloat(newProduct.price),
-        is_available: true,
-        position: products.length
-      })
-      .select('*, category:product_categories(*)').single()
-    setProducts(prev => [...prev, data])
-    setNewProduct({ name: '', description: '', price: '', category_id: '' })
-    setShowNewProduct(false)
+async function addProduct() {
+  if (!newProduct.name || !newProduct.price) return
+  setUploading(true)
+  let image_url = null
+  if (imageFile) {
+    const ext = imageFile.name.split('.').pop()
+    const path = `products/${store.id}/${Date.now()}.${ext}`
+    const { data: uploadData } = await supabase.storage
+      .from('store-images')
+      .upload(path, imageFile, { upsert: true })
+    if (uploadData) {
+      const { data: urlData } = supabase.storage
+        .from('store-images')
+        .getPublicUrl(path)
+      image_url = urlData.publicUrl
+    }
   }
+  const { data } = await supabase
+    .from('products')
+    .insert({
+      store_id: store.id,
+      category_id: newProduct.category_id || null,
+      name: newProduct.name,
+      description: newProduct.description,
+      price: parseFloat(newProduct.price),
+      image_url,
+      is_available: true,
+      position: products.length
+    })
+    .select('*, category:product_categories(*)').single()
+  setProducts(prev => [...prev, data])
+  setNewProduct({ name: '', description: '', price: '', category_id: '' })
+  setImageFile(null)
+  setShowNewProduct(false)
+  setUploading(false)
+}
 
   async function toggleAvailable(productId: string, current: boolean) {
     await supabase.from('products').update({ is_available: !current }).eq('id', productId)
@@ -156,6 +176,11 @@ export default function StoreProductsPage() {
                 <input value={newProduct.price} onChange={e => setNewProduct(p => ({ ...p, price: e.target.value }))} placeholder="0.00" type="number" step="0.01" style={inputStyle} />
               </div>
               <div>
+               <div>
+  <div style={{ fontSize: '11px', fontWeight: 600, color: '#888', marginBottom: '5px' }}>FOTO DEL PRODUCTO</div>
+  <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} style={{ width: '100%', fontSize: '13px', color: '#666' }} />
+  {imageFile && <div style={{ marginTop: '8px', fontSize: '12px', color: '#22C55E' }}>✓ {imageFile.name}</div>}
+</div>
                 <div style={{ fontSize: '11px', fontWeight: 600, color: '#888', marginBottom: '5px' }}>CATEGORIA</div>
                 <select value={newProduct.category_id} onChange={e => setNewProduct(p => ({ ...p, category_id: e.target.value }))} style={{ ...inputStyle, appearance: 'none' }}>
                   <option value="">Sin categoria</option>
@@ -165,7 +190,9 @@ export default function StoreProductsPage() {
             </div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
               <button onClick={() => setShowNewProduct(false)} style={{ flex: 1, height: '48px', background: '#F7F7F7', border: '1.5px solid #eee', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#888', cursor: 'pointer', fontFamily: 'system-ui' }}>Cancelar</button>
-              <button onClick={addProduct} style={{ flex: 1, height: '48px', background: '#D97706', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', cursor: 'pointer', fontFamily: 'system-ui' }}>Guardar</button>
+              <button onClick={addProduct} disabled={uploading} style={{ flex: 1, height: '48px', background: uploading ? '#F5D79E' : '#D97706', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', cursor: 'pointer', fontFamily: 'system-ui' }}>
+  {uploading ? 'Subiendo...' : 'Guardar'}
+</button>
             </div>
           </div>
         </div>
@@ -227,9 +254,13 @@ function ProductCard({ product, onToggle, onDelete }: any) {
 
   return (
     <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '14px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', opacity: product.is_available ? 1 : 0.5 }}>
-      <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#FFF8EC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
-        🍽️
-      </div>
+      {product.image_url ? (
+  <img src={product.image_url} style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }} />
+) : (
+  <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#FFF8EC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
+    🍽️
+  </div>
+)}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '14px', fontWeight: 600, color: '#111' }}>{product.name}</div>
         {product.description && <div style={{ fontSize: '11px', color: '#999', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.description}</div>}
