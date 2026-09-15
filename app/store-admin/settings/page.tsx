@@ -11,6 +11,9 @@ export default function StoreSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+const [coverFile, setCoverFile] = useState<File | null>(null)
+const [uploading, setUploading] = useState(false)
+const [isOpen, setIsOpen] = useState(false)
   const [form, setForm] = useState({
     name: '', description: '', address: '', phone: '', delivery_fee: '', min_order: ''
   })
@@ -34,6 +37,7 @@ export default function StoreSettingsPage() {
         delivery_fee: storeData.delivery_fee?.toString() || '0',
         min_order: storeData.min_order?.toString() || '0'
       })
+setIsOpen(storeData.is_open || false)
       setLoading(false)
     }
     load()
@@ -43,23 +47,43 @@ export default function StoreSettingsPage() {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
+async function handleSave(e: React.FormEvent) {
+  e.preventDefault()
+  setSaving(true)
+  setUploading(true)
 
-    await supabase.from('stores').update({
-      name: form.name,
-      description: form.description,
-      address: form.address,
-      phone: form.phone,
-      delivery_fee: parseFloat(form.delivery_fee) || 0,
-      min_order: parseFloat(form.min_order) || 0
-    }).eq('id', store.id)
+  let cover_url = store.cover_url
 
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  if (coverFile) {
+    const ext = coverFile.name.split('.').pop()
+    const path = `covers/${store.id}.${ext}`
+    const { data: uploadData } = await supabase.storage
+      .from('store-images')
+      .upload(path, coverFile, { upsert: true })
+    if (uploadData) {
+      const { data: urlData } = supabase.storage
+        .from('store-images')
+        .getPublicUrl(path)
+      cover_url = urlData.publicUrl
+    }
   }
+
+  await supabase.from('stores').update({
+    name: form.name,
+    description: form.description,
+    address: form.address,
+    phone: form.phone,
+    delivery_fee: parseFloat(form.delivery_fee) || 0,
+    min_order: parseFloat(form.min_order) || 0,
+    cover_url,
+    is_open: isOpen
+  }).eq('id', store.id)
+
+  setSaving(false)
+  setUploading(false)
+  setSaved(true)
+  setTimeout(() => setSaved(false), 2000)
+}
 
   const inputStyle = {
     width: '100%', background: '#F7F7F7',
@@ -101,6 +125,15 @@ export default function StoreSettingsPage() {
 
         {/* Informacion basica */}
         <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid rgba(0,0,0,0.06)' }}>
+{/* Imagen de portada */}
+<div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid rgba(0,0,0,0.06)', marginBottom: '16px' }}>
+  <div style={{ fontSize: '13px', fontWeight: 700, color: '#111', marginBottom: '14px' }}>Imagen de portada</div>
+  {store?.cover_url && (
+    <img src={store.cover_url} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '12px', marginBottom: '12px' }} />
+  )}
+  <input type="file" accept="image/*" onChange={e => setCoverFile(e.target.files?.[0] || null)} style={{ width: '100%', fontSize: '13px', color: '#666' }} />
+  {coverFile && <div style={{ marginTop: '8px', fontSize: '12px', color: '#22C55E' }}>✓ {coverFile.name}</div>}
+</div>
           <div style={{ fontSize: '13px', fontWeight: 700, color: '#111', marginBottom: '14px' }}>Informacion basica</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
@@ -136,7 +169,30 @@ export default function StoreSettingsPage() {
             </div>
           </div>
         </div>
-
+<div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid rgba(0,0,0,0.06)' }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div>
+      <div style={{ fontSize: '14px', fontWeight: 700, color: '#111' }}>Estado del local</div>
+      <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
+        {isOpen ? 'Visible y aceptando pedidos' : 'No visible para clientes'}
+      </div>
+    </div>
+    <div onClick={() => setIsOpen(!isOpen)} style={{
+      width: '52px', height: '28px', borderRadius: '14px',
+      background: isOpen ? '#22C55E' : '#ddd',
+      position: 'relative', cursor: 'pointer', transition: 'background .2s'
+    }}>
+      <div style={{
+        position: 'absolute', top: '3px',
+        left: isOpen ? '27px' : '3px',
+        width: '22px', height: '22px',
+        borderRadius: '50%', background: '#fff',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+        transition: 'left .2s'
+      }}/>
+    </div>
+  </div>
+</div>
         {/* Estado */}
         <div style={{ background: store?.status === 'active' ? '#F0FDF4' : '#FFF8EC', borderRadius: '16px', padding: '16px', border: store?.status === 'active' ? '1.5px solid #BBF7D0' : '1.5px solid #FDE68A' }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: store?.status === 'active' ? '#16A34A' : '#D97706', marginBottom: '4px' }}>
