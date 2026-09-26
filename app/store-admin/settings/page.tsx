@@ -169,6 +169,7 @@ async function handleSave(e: React.FormEvent) {
             </div>
           </div>
         </div>
+        {/* Estado */}
 <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid rgba(0,0,0,0.06)' }}>
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
     <div>
@@ -193,7 +194,6 @@ async function handleSave(e: React.FormEvent) {
     </div>
   </div>
 </div>
-        {/* Estado */}
         <div style={{ background: store?.status === 'active' ? '#F0FDF4' : '#FFF8EC', borderRadius: '16px', padding: '16px', border: store?.status === 'active' ? '1.5px solid #BBF7D0' : '1.5px solid #FDE68A' }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: store?.status === 'active' ? '#16A34A' : '#D97706', marginBottom: '4px' }}>
             {store?.status === 'active' ? '✅ Local aprobado y activo' : '⏳ Pendiente de aprobacion'}
